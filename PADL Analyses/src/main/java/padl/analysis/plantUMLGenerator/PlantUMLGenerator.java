@@ -31,6 +31,7 @@ import padl.kernel.IRelationship;
 import padl.kernel.ISetter;
 import padl.kernel.IUseRelationship;
 import padl.visitor.IGenerator;
+import padl.visitor.TraversalStrategy;
 import util.io.ProxyConsole;
 
 /**
@@ -41,10 +42,18 @@ public class PlantUMLGenerator implements IGenerator {
 	protected final StringBuffer plantUMLBuilder = new StringBuffer();
 	protected final StringBuffer plantUMLBuilderRelationship = new StringBuffer();
 	private IFirstClassEntity currentEntity;
+    private final TraversalStrategy traversalStrategy;
 
-	public PlantUMLGenerator() {
-		this.plantUMLBuilder.append("\n@startuml\n");
-	}
+    public PlantUMLGenerator() {
+        // If a TraversalStrategy is not passed, then set traversalStrategy to DFS by default
+        this.traversalStrategy = TraversalStrategy.DFS;
+        this.plantUMLBuilder.append("\n@startuml\n");
+    }
+    // If a TraversalStrategy is passed, then set traversalStrategy attribute
+    public PlantUMLGenerator(TraversalStrategy traversalStrategy) {
+        this.traversalStrategy = traversalStrategy;
+        this.plantUMLBuilder.append("\n@startuml\n");
+    }
 
 	public String getCode() {
 		return this.plantUMLBuilder.toString();
@@ -328,4 +337,8 @@ public class PlantUMLGenerator implements IGenerator {
 	public Object getResult() {
 		return plantUMLBuilder.toString();
 	}
+
+    public TraversalStrategy getTraversalStrategy() {
+        return this.traversalStrategy;
+    }
 }

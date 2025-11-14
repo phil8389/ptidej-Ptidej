@@ -90,4 +90,9 @@ public interface IVisitor {
 	// must: like when generating models for MADMatch! 
 	void visit(final IPrimitiveEntity aPrimitiveEntity);
 	void visit(final IUseRelationship aUse);
+
+    // Default implementation - current visitors don't need to override
+    default TraversalStrategy getTraversalStrategy() {
+        return TraversalStrategy.DFS;  // Default to DFS
+    }
 }

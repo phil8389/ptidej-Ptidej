@@ -5,17 +5,11 @@ import padl.creator.classfile.CompleteClassFileCreator;
 import padl.kernel.ICodeLevelModel;
 import padl.kernel.exception.CreationException;
 import padl.kernel.impl.Factory;
-import padl.util.ModelStatistics;
-
-import java.io.File;
+import padl.visitor.TraversalStrategy;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     static void main() throws IOException {
         final String path = "../DeMIMA/target/test-classes/ptidej/example/composite1/";
@@ -30,6 +24,9 @@ public class Main {
         }
 
         // ------ Generate using DFS ------
+        System.out.println("==============================================");
+        System.out.println("================   DFS START   ===============");
+        System.out.println("==============================================");
         PlantUMLGenerator PlantUMLGeneratorNewDFS = new PlantUMLGenerator();
 
         codeLevelModel.generate(PlantUMLGeneratorNewDFS);
@@ -37,6 +34,18 @@ public class Main {
 
         // Write to file
         writeToFile("src/main/resources/uml_DFS.txt", umlContentDFS);
+
+        // ------ Generate using BFS ------
+        System.out.println("==============================================");
+        System.out.println("================   BFS START   ===============");
+        System.out.println("==============================================");
+        PlantUMLGenerator PlantUMLGeneratorNewBFS = new PlantUMLGenerator(TraversalStrategy.BFS);
+
+        codeLevelModel.generate(PlantUMLGeneratorNewBFS);
+        String umlContentBFS = (String) PlantUMLGeneratorNewBFS.getCode();
+
+        // Write to file
+        writeToFile("src/main/resources/uml_BFS.txt", umlContentBFS);
     }
 
     public static void writeToFile(String filename, String content) throws IOException {

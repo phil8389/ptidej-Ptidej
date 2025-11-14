@@ -96,6 +96,18 @@ public abstract class Constituent implements IConstituent {
 		final String methodName,
 		final boolean shouldRecurse) {
 
+        // For Debugging and visual confirmation of traversal order: ONLY PRINT FOR "visit", not "open" or "close"
+//        if (methodName.equals("visit")) {
+//            try {
+//                System.out.println("Visiting: " +
+//                        this.getClass().getSimpleName() + " : " +
+//                        this.getDisplayName());
+//            } catch (Exception e) {
+//                System.out.println("Visiting: " +
+//                        this.getClass().getSimpleName() + " : <error>");
+//            }
+//        }
+
 		// Yann 2003/12/05: Interfaces!
 		// I must match a class a the kernel to the
 		// corresponding interface:

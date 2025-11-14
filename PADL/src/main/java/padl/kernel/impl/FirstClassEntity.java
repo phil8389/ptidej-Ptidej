@@ -35,15 +35,12 @@ import java.util.Iterator;
 import java.util.List;
 import padl.event.IEvent;
 import padl.event.IModelListener;
-import padl.kernel.IConstituent;
-import padl.kernel.IConstituentOfEntity;
-import padl.kernel.IFilter;
-import padl.kernel.IFirstClassEntity;
-import padl.kernel.IRelationship;
+import padl.kernel.*;
 import padl.kernel.exception.ModelDeclarationException;
 import padl.path.IConstants;
 import padl.util.Util;
 import padl.visitor.IVisitor;
+import padl.visitor.TraversalStrategy;
 import util.multilingual.MultilingualManager;
 
 //Sebastien Colladon 21/04/2012 : Change the visibility to public in order to allow other project to extend from this class in the particular case of eclipse bundle loader (avoid IllegalAccessError).
@@ -72,16 +69,83 @@ public abstract class FirstClassEntity extends Constituent
 	public FirstClassEntity(final char[] actorID) {
 		super(actorID);
 	}
-	public void accept(final IVisitor visitor) {
-		this.accept(visitor, "open");
-		final Iterator iterator = this.getConcurrentIteratorOnConstituents();
-		while (iterator.hasNext()) {
-			final IConstituent constituent = (IConstituent) iterator.next();
-			// System.out.println(constituent.toString());
-			constituent.accept(visitor);
-		}
-		this.accept(visitor, "close");
-	}
+    public void accept(final IVisitor visitor) {
+        // This is the second tto last smallest building block before constituent, the DFS occurs here for accept
+        // We will add a switch statement that checks what stratgey the visitor wants to use to traverse and call the appropriate
+        // method (acceptDFS, acceptBFS or acceptSelective)
+        TraversalStrategy strategy = visitor.getTraversalStrategy();
+
+        switch (strategy) {
+            case BFS:
+                acceptBFS(visitor);
+                break;
+            case Selective:
+                acceptSelective(visitor);
+                break;
+            case DFS:
+            default:
+                acceptDFS(visitor);
+                break;
+        }
+    }
+
+    // TO BE IMPLEMENTED
+    private void acceptSelective(IVisitor visitor) {
+    }
+
+    // The previous accept method refactored into acceptDFS
+    public void acceptDFS(final IVisitor visitor) {
+        this.accept(visitor, "open");
+        final Iterator iterator = this.getConcurrentIteratorOnConstituents();
+        while (iterator.hasNext()) {
+            final IConstituent constituent = (IConstituent) iterator.next();
+            constituent.accept(visitor);
+        }
+        this.accept(visitor, "close");
+    }
+
+    //The new iplementation of BFS
+    public void acceptBFS(final IVisitor visitor) {
+        this.accept(visitor, "open");
+
+        // Single list acting as queue --> FIFO queue
+        List<Object> queue = new ArrayList<>();
+
+        // Add initial constituents
+        final Iterator iterator = this.getConcurrentIteratorOnConstituents();
+        while (iterator.hasNext()) {
+            queue.add(iterator.next());
+        }
+
+        // Process queue, list grows as we iterate
+        int index = 0;
+        while (index < queue.size()) {
+            final IConstituent constituent = (IConstituent) queue.get(index);
+
+            if (constituent != null) {
+                // instead of calling this.accept like in DFS,
+                // we directly call the accept method of Constituent to avoid the recursive acceptBFS call
+                ((Constituent) constituent).accept(visitor, "visit");
+
+                // gets the iterator for all the current constituent's children
+                if (constituent instanceof IContainer) {
+                    final Iterator childIterator =
+                            ((IContainer) constituent).getConcurrentIteratorOnConstituents();
+                    while (childIterator.hasNext()) {
+                        // adds each child to the current queue, which dynamically increases
+                        Object child = childIterator.next();
+                        if (child != null) {
+                            queue.add(child);
+                        }
+                    }
+                }
+            }
+            // move to the next constituent to visit
+            index++;
+        }
+
+        this.accept(visitor, "close");
+    }
 	//	public void addConstituent(final IConstituentOfEntity aConstituent)
 	//			throws ModelDeclarationException {
 	//
