@@ -10,19 +10,17 @@
  ******************************************************************************/
 package padl.kernel.impl;
 
+import java.lang.Class;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
+
 import org.apache.commons.lang3.ArrayUtils;
 import padl.kernel.Constants;
 import padl.kernel.IConstituent;
 import padl.kernel.IConstituentExtension;
 import padl.kernel.exception.ModelDeclarationException;
 import padl.util.Util;
+import padl.visitor.IGenerator;
 import padl.visitor.IVisitor;
 import util.io.ProxyConsole;
 import util.lang.Modifier;
@@ -75,7 +73,32 @@ public abstract class Constituent implements IConstituent {
 		this.setName(anID);
 		this.setPath(anID);
 	}
-	public void accept(final IVisitor visitor) {
+    public void acceptVisit(final IVisitor visitor){
+        this.accept(visitor, "visit");
+    }
+//    public void acceptVisit(final IVisitor visitor, Set<Class<?>> notAllowed) {
+//        if (notAllowed != null && !notAllowed.isEmpty()) {
+//            boolean blocked = notAllowed.stream()
+//                    .anyMatch(type -> type.isInstance(this));
+//
+//            if (blocked) {
+//                return; // skip this visit entirely
+//            }
+//        }
+//        this.accept(visitor, "visit");
+//    }
+    public void acceptOpen(IVisitor visitor) {
+        this.accept(visitor, "open");
+
+    }
+
+    public void acceptClose(IVisitor visitor) {
+        this.accept(visitor, "close");
+
+    }
+
+
+    public void accept(final IVisitor visitor) {
 		this.accept(visitor, "visit");
 	}
 	protected void accept(final IVisitor visitor, final String methodName) {
@@ -440,4 +463,6 @@ public abstract class Constituent implements IConstituent {
 		codeEq.append(Modifier.toString(this.getVisibility()));
 		return codeEq.toString();
 	}
+
+
 }
