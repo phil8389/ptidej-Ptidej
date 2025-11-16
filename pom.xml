@@ -70,6 +70,7 @@
 		<module>SAD</module>
 		<module>SAD Rules Creator</module>
 		<module>SQUAD</module>
+        <module>BFS</module>
 	</modules>
 
 	<properties>
